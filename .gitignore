@@ -5,3 +5,4 @@ settings.json
 *.log
 .DS_Store
 *.lock
+service-account.json
