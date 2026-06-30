@@ -33,7 +33,11 @@ export async function handleTextMessage(ctx: Context) {
             meaningVi = await translateText(wordInfo.definition);
         }
 
-        // 4. Build Row with Schema: word, phonetic, pos, definition_en, meaning_vi, example, audio_url, created_at
+        // Next review mặc định là ngày mai
+        const nextReviewDate = new Date();
+        nextReviewDate.setDate(nextReviewDate.getDate() + 1);
+
+        // 4. Build Row with Schema: word, phonetic, pos, definition_en, meaning_vi, example, audio_url, created_at, next_review, rep, interval, efac
         const row = [
             wordInfo.word,
             wordInfo.phonetic || '',
@@ -42,7 +46,11 @@ export async function handleTextMessage(ctx: Context) {
             meaningVi,
             wordInfo.example || '',
             wordInfo.audioUrl || '',
-            new Date().toLocaleString('vi-VN')
+            new Date().toLocaleString('vi-VN'),
+            nextReviewDate.toISOString(),
+            0,      // repetition
+            0,      // interval
+            2.5     // efactor
         ];
 
         // 5. Append to Google Sheet
