@@ -24,7 +24,7 @@ export async function handleReview(ctx: Context) {
 
     // Bỏ qua dòng Header (index 0) nên bắt đầu từ i = 1
     for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
+        const row = rows[i] || [];
         if (!row[0]) continue; // Skip empty row
 
         // Nếu row ngắn hơn 9 phần tử (chưa có cột next_review_date)
@@ -75,6 +75,7 @@ export async function handleReview(ctx: Context) {
     });
 
     const firstWord = wordsDue[0];
+    if (!firstWord) return;
 
     const text = `📚 **ÔN TẬP TỪ VỰNG** (${1}/${wordsDue.length})\n\n` +
                  `Gợi ý nghĩa: _${firstWord.meaning_vi}_\n\n` +

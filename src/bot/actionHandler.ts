@@ -4,9 +4,9 @@ import { calculateNextReview } from '../services/spacedRepetitionService';
 import { updateRow } from '../services/googleSheetService';
 
 export async function handleAction(ctx: Context) {
-    if (!('data' in ctx.callbackQuery!)) return;
+    if (!ctx.callbackQuery || !('data' in ctx.callbackQuery)) return;
 
-    const actionData = ctx.callbackQuery.data;
+    const actionData = (ctx.callbackQuery as any).data as string;
     const userId = String(ctx.from?.id);
     const session = getSession(userId);
 
@@ -18,7 +18,8 @@ export async function handleAction(ctx: Context) {
         await renderAnswer(ctx, session);
         await ctx.answerCbQuery();
     } else if (actionData.startsWith('grade_')) {
-        const grade = parseInt(actionData.split('_')[1], 10);
+        const gradeStr = actionData.split('_')[1];
+        const grade = parseInt(gradeStr || '0', 10);
         await handleGrade(ctx, session, grade);
         await ctx.answerCbQuery();
     }
@@ -26,6 +27,7 @@ export async function handleAction(ctx: Context) {
 
 async function renderAnswer(ctx: Context, session: ReviewSession) {
     const wordInfo = session.wordsDue[session.currentIndex];
+    if (!wordInfo) return;
     
     const text = `📚 **TỪ VỰNG**: *${wordInfo.word}*\n` +
                  `Phiên âm: ${wordInfo.phonetic}\n` +
@@ -54,6 +56,7 @@ async function renderAnswer(ctx: Context, session: ReviewSession) {
 
 async function handleGrade(ctx: Context, session: ReviewSession, grade: number) {
     const wordInfo = session.wordsDue[session.currentIndex];
+    if (!wordInfo) return;
 
     // 1. Calculate SR
     const newSrData = calculateNextReview(grade, wordInfo.repetition, wordInfo.interval, wordInfo.efactor);
@@ -79,6 +82,7 @@ async function handleGrade(ctx: Context, session: ReviewSession, grade: number) 
         await ctx.editMessageText("🎉 **Xong!**\nBạn đã ôn xong toàn bộ từ vựng tới hạn cho hôm nay. Chúc một ngày tốt lành!", { parse_mode: 'Markdown' });
     } else {
         const nextWord = session.wordsDue[session.currentIndex];
+        if (!nextWord) return;
         const nextText = `📚 **ÔN TẬP TỪ VỰNG** (${session.currentIndex + 1}/${session.wordsDue.length})\n\n` +
                          `Gợi ý nghĩa: _${nextWord.meaning_vi}_\n\n` +
                          `Tiếp tục, hãy cố nhớ từ tiếng Anh này nhé!`;
