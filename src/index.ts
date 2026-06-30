@@ -4,10 +4,9 @@ import { handleSetSheet } from './bot/commands/setSheet';
 import { handleTextMessage } from './bot/messageHandler';
 import { handleReview } from './bot/commands/review';
 import { handleAction } from './bot/actionHandler';
+import { startScheduler } from './bot/scheduler';
 
 const bot = new Telegraf(config.telegramToken);
-
-// Middleware Whitelist Security
 bot.use(async (ctx, next) => {
     const userId = String(ctx.from?.id);
     if (userId !== config.whitelistId) {
@@ -39,13 +38,15 @@ bot.command('start', (ctx) => {
 
 // Handle text messages (Words)
 bot.on('text', handleTextMessage);
-
 // Handle callback queries (Inline buttons)
 bot.on('callback_query', handleAction);
 
 console.log("🚀 Telegram Vocabulary Bot is starting...");
 bot.launch()
-    .then(() => console.log("✅ Bot is online!"))
+    .then(() => {
+        console.log("✅ Bot is online!");
+        startScheduler(bot);
+    })
     .catch((err) => console.error("❌ Failed to start bot:", err));
 
 // Enable graceful stop

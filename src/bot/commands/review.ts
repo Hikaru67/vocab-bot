@@ -4,20 +4,9 @@ import { getUserSheet } from '../../repository/userSettingRepo';
 import { config } from '../../config/botConfig';
 import { setSession, ReviewWord } from '../sessionManager';
 
-export async function handleReview(ctx: Context) {
-    const userId = String(ctx.from?.id);
-    const sheetId = getUserSheet(userId) || config.defaultSpreadsheetId;
-
-    if (!sheetId || sheetId.trim() === '') {
-        return ctx.reply("⚠️ Bạn chưa cấu hình Google Sheet ID. Vui lòng dùng lệnh:\n`/set_sheet <sheet_id>`", { parse_mode: 'Markdown' });
-    }
-
-    const m = await ctx.reply("⏳ Đang lấy dữ liệu từ Google Sheet...");
-
+export async function getWordsDue(sheetId: string): Promise<ReviewWord[]> {
     const rows = await getRows(sheetId);
-    if (rows.length === 0) {
-        return ctx.telegram.editMessageText(ctx.chat?.id, m.message_id, undefined, "❌ Sheet của bạn đang trống.");
-    }
+    if (rows.length === 0) return [];
 
     const now = new Date();
     const wordsDue: ReviewWord[] = [];
@@ -59,6 +48,21 @@ export async function handleReview(ctx: Context) {
             });
         }
     }
+    
+    return wordsDue;
+}
+
+export async function handleReview(ctx: Context) {
+    const userId = String(ctx.from?.id);
+    const sheetId = getUserSheet(userId) || config.defaultSpreadsheetId;
+
+    if (!sheetId || sheetId.trim() === '') {
+        return ctx.reply("⚠️ Bạn chưa cấu hình Google Sheet ID. Vui lòng dùng lệnh:\n`/set_sheet <sheet_id>`", { parse_mode: 'Markdown' });
+    }
+
+    const m = await ctx.reply("⏳ Đang lấy dữ liệu từ Google Sheet...");
+
+    const wordsDue = await getWordsDue(sheetId);
 
     if (wordsDue.length === 0) {
         return ctx.telegram.editMessageText(ctx.chat?.id, m.message_id, undefined, "🎉 Tuyệt vời! Bạn đã hoàn thành việc ôn tập tất cả các từ vựng tới hạn cho hôm nay.");
