@@ -1,0 +1,1 @@
+{"version":3,"file":"review.d.ts","sourceRoot":"","sources":["../../../src/bot/commands/review.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAU,MAAM,UAAU,CAAC;AAI3C,OAAO,EAAc,UAAU,EAAE,MAAM,mBAAmB,CAAC;AAE3D,wBAAsB,WAAW,CAAC,OAAO,EAAE,MAAM,GAAG,OAAO,CAAC,UAAU,EAAE,CAAC,CA8CxE;AAED,wBAAsB,YAAY,CAAC,GAAG,EAAE,OAAO,6EA0C9C"}
